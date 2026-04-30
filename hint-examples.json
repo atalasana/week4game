@@ -1,0 +1,52 @@
+{
+  "examples": [
+    { "axisLeft": "Hot", "axisRight": "Cold", "position": 5, "hint": "Sun" },
+    { "axisLeft": "Fast", "axisRight": "Slow", "position": 12, "hint": "Lightning" },
+
+    { "axisLeft": "Minimalist", "axisRight": "Overloaded", "position": 18, "hint": "Google search" },
+
+    { "axisLeft": "Natural", "axisRight": "Artificial", "position": 95, "hint": "Silicone implant" },
+    { "axisLeft": "Luck", "axisRight": "Skill", "position": 79, "hint": "Poker" },
+
+    { "axisLeft": "Fast", "axisRight": "Slow", "position": 47, "hint": "Jogging pace" },
+
+    { "axisLeft": "Luck", "axisRight": "Skill", "position": 61, "hint": "Penalty shootout" },
+    
+    { "axisLeft": "Trashy", "axisRight": "Classy", "position": 15, "hint": "Drinking cheap wine out of a coffee mug" },
+    { "axisLeft": "Trashy", "axisRight": "Classy", "position": 45, "hint": "A charcuterie board made entirely of Lunchables" },
+    { "axisLeft": "Trashy", "axisRight": "Classy", "position": 90, "hint": "Listening to a string quartet in a botanical garden" },
+
+    { "axisLeft": "Bad Superpower", "axisRight": "Good Superpower", "position": 8, "hint": "The ability to turn invisible for 5s, but only when you shit yourself" },
+    { "axisLeft": "Bad Superpower", "axisRight": "Good Superpower", "position": 35, "hint": "Always knowing exactly what time it is without a watch" },
+    { "axisLeft": "Bad Superpower", "axisRight": "Good Superpower", "position": 92, "hint": "Teleportation to anywhere in the universe" },
+
+    { "axisLeft": "Mildly Annoying", "axisRight": "Infuriating", "position": 40, "hint": "Stepping in a tiny drop of water with fresh socks on" },
+    { "axisLeft": "Mildly Annoying", "axisRight": "Infuriating", "position": 60, "hint": "Someone chewing loudly right next to your ear" },
+    { "axisLeft": "Mildly Annoying", "axisRight": "Infuriating", "position": 95, "hint": "Someone deleting your 100-hour game save file" },
+
+    { "axisLeft": "Snack", "axisRight": "Meal", "position": 10, "hint": "A single baby carrot" },
+    { "axisLeft": "Snack", "axisRight": "Meal", "position": 55, "hint": "A bowl of cereal at 11 PM" },
+    { "axisLeft": "Snack", "axisRight": "Meal", "position": 85, "hint": "A double cheeseburger with a side of fries" },
+
+    { "axisLeft": "Normal Pet", "axisRight": "Weird Pet", "position": 5, "hint": "A Golden Retriever" },
+    { "axisLeft": "Normal Pet", "axisRight": "Weird Pet", "position": 65, "hint": "A tarantula" },
+    { "axisLeft": "Normal Pet", "axisRight": "Weird Pet", "position": 98, "hint": "A jar full of Madagascar hissing cockroaches" },
+
+    { "axisLeft": "Terrible Advice", "axisRight": "Great Advice", "position": 45, "hint": "You should flip a coin and do what it says" },
+
+    { "axisLeft": "Needs a Hug", "axisRight": "Needs a Slap", "position": 85, "hint": "Your printer when it jams on the last page of an important document" },
+
+    { "axisLeft": "Too Weird for a First Date", "axisRight": "Perfect for a First Date", "position": 45, "hint": "Going to an escape room" },
+    { "axisLeft": "Acceptable at 3 AM", "axisRight": "Psychopathic at 3 AM", "position": 15, "hint": "Eating shredded cheese straight from the bag while staring into the fridge" },
+    { "axisLeft": "Acceptable at 3 AM", "axisRight": "Psychopathic at 3 AM", "position": 95, "hint": "Vacuuming the living room while listening to a podcast" },
+    { "axisLeft": "Terrible Gift", "axisRight": "Great Gift", "position": 20, "hint": "A massive 300GB hard drive completely filled with unorganized, uncompressed raw video files" },
+    { "axisLeft": "Worse Than a Breakup", "axisRight": "Best Feeling in the World", "position": 8, "hint": "Dropping a perfectly made sandwich face-down on the floor" },
+    { "axisLeft": "Worse Than a Breakup", "axisRight": "Best Feeling in the World", "position": 98, "hint": "Waking up in a panic for work, then realizing it's Saturday" },
+    { "axisLeft": "Useless Body Part", "axisRight": "Useful Body Part", "position": 10, "hint": "Wisdom teeth" },
+    { "axisLeft": "Useless Body Part", "axisRight": "Useful Body Part", "position": 50, "hint": "Pinky toe" },
+    { "axisLeft": "Useless Body Part", "axisRight": "Useful Body Part", "position": 98, "hint": "eyes" },
+    { "axisLeft": "Exhausting Trip", "axisRight": "Relaxing Vacation", "position": 15, "hint": "Backpacking across four countries in 7 days and hitchiking" },
+    { "axisLeft": "Exhausting Trip", "axisRight": "Relaxing Vacation", "position": 90, "hint": "Renting a quiet villa in Madeira for a week" },
+    { "axisLeft": "Not a Sandwich", "axisRight": "Sandwich", "position": 60, "hint": "A hotdog" }
+  ]
+}

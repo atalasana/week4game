@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="sr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Wavelength Srbija</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Crimson+Pro:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css?v=20260501-gothic" />
+</head>
+<body data-theme="dark">
+  <div id="bgQuestions" class="bg-questions" aria-hidden="true"></div>
+  <div class="bg-grain"></div>
+
+  <section id="startGate" class="start-gate" aria-label="Pocetni ekran">
+    <div class="start-card">
+      <p class="start-kicker" id="startKicker">DOBRODOSLI</p>
+      <h2 id="startTitle">Izaberi rezim igre</h2>
+      <p id="startSubtitle">Odaberi rezim: jedan tim (sa AI tragom) ili mec dva tima.</p>
+      <div class="start-actions">
+        <button id="startSingleBtn" class="btn btn-primary" type="button">Igra jednog tima</button>
+        <button id="startTwoBtn" class="btn btn-accent" type="button">Igra dva tima</button>
+      </div>
+      <button id="startRulesBtn" class="btn btn-ghost start-rules-toggle" type="button">Pravila igre</button>
+      <div id="startRulesBox" class="start-rules-box hidden">
+        <h3 id="startRulesTitle">Pravila igre</h3>
+        <p id="startRulesText">1) Pogledaj skalu i smisli trag. 2) Tim pomera kazaljku i pritisne Pogodi. 3) Sto blize tajnoj zoni, vise poena. 4) Prvi do cilja pobedjuje.</p>
+      </div>
+    </div>
+  </section>
+
+  <main class="app">
+    <header class="topbar">
+      <div>
+        <p class="kicker" id="kickerLabel">DRUŠTVENA IGRA</p>
+        <h1>Wavelength</h1>
+      </div>
+      <div class="top-actions">
+        <button id="themeBtn" class="icon-btn" type="button" aria-label="Promeni temu" aria-pressed="false" title="Light tema">
+          <span class="theme-icon" aria-hidden="true">
+            <svg class="icon-sun" viewBox="0 0 24 24" focusable="false">
+              <path d="M12 17a5 5 0 1 0 0-10 5 5 0 0 0 0 10Zm0-14a1 1 0 0 1 1 1v1a1 1 0 1 1-2 0V4a1 1 0 0 1 1-1Zm0 16a1 1 0 0 1 1 1v1a1 1 0 1 1-2 0v-1a1 1 0 0 1 1-1Zm8-8a1 1 0 0 1 1 1 1 1 0 0 1-1 1h-1a1 1 0 1 1 0-2h1ZM5 12a1 1 0 1 1 0 2H4a1 1 0 1 1 0-2h1Zm11.66-5.66a1 1 0 0 1 1.41 0l.71.71a1 1 0 1 1-1.41 1.41l-.71-.71a1 1 0 0 1 0-1.41Zm-10.73 10.73a1 1 0 0 1 1.41 0l.71.71a1 1 0 0 1-1.41 1.41l-.71-.71a1 1 0 0 1 0-1.41Zm12.14 1.41a1 1 0 0 1-1.41 0l-.71-.71a1 1 0 0 1 1.41-1.41l.71.71a1 1 0 0 1 0 1.41ZM8.05 8.05a1 1 0 0 1-1.41 0l-.71-.71A1 1 0 1 1 7.34 5.93l.71.71a1 1 0 0 1 0 1.41Z"/>
+            </svg>
+            <svg class="icon-moon" viewBox="0 0 24 24" focusable="false">
+              <path d="M20.14 14.89A8.5 8.5 0 1 1 9.11 3.86a1 1 0 0 1 1.17 1.34A6.5 6.5 0 0 0 18.8 13.7a1 1 0 0 1 1.34 1.19Z"/>
+            </svg>
+          </span>
+          <span class="sr-only">Tema</span>
+        </button>
+        <button id="langBtn" class="btn btn-ghost lang-btn" type="button" aria-label="Prebaci na engleski jezik" title="Srpski">EN</button>
+        <button id="newGameBtn" class="btn btn-ghost">Nova partija</button>
+      </div>
+    </header>
+
+    <section class="scoreboard">
+      <article class="team team-blue" id="team0Card">
+        <h2 class="team-name-row">
+          <span id="team0NameLabel">Ljubicast tim</span>
+          <button id="editTeam0Btn" class="name-edit-btn" type="button" aria-label="Promeni naziv tima 1">
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <path d="M3 17.25V21h3.75L17.8 9.94l-3.75-3.75L3 17.25zm17.71-10.04a1.003 1.003 0 0 0 0-1.42l-2.5-2.5a1.003 1.003 0 0 0-1.42 0L14.83 5.25l3.75 3.75 2.13-1.79z" />
+            </svg>
+          </button>
+        </h2>
+        <p class="score" id="team0Score">0</p>
+      </article>
+      <article class="center-info">
+        <p><span id="roundLabel">Runda</span> <span id="roundNum">1</span></p>
+        <p><span id="activeTeamPrefix">Na potezu:</span> <strong id="activeTeamLabel">Ljubicast tim</strong></p>
+        <p><span id="goalLabel">Cilj za pobedu:</span> <span id="goalScore">10</span></p>
+      </article>
+      <article class="team team-orange" id="team1Card">
+        <h2 class="team-name-row">
+          <span id="team1NameLabel">Narandzasti tim</span>
+          <button id="editTeam1Btn" class="name-edit-btn" type="button" aria-label="Promeni naziv tima 2">
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+              <path d="M3 17.25V21h3.75L17.8 9.94l-3.75-3.75L3 17.25zm17.71-10.04a1.003 1.003 0 0 0 0-1.42l-2.5-2.5a1.003 1.003 0 0 0-1.42 0L14.83 5.25l3.75 3.75 2.13-1.79z" />
+            </svg>
+          </button>
+        </h2>
+        <p class="score" id="team1Score">0</p>
+      </article>
+    </section>
+
+    <section class="axis-card">
+      <p class="axis-title" id="axisTitle">Skala za ovu rundu</p>
+      <div class="axis-ends">
+        <span id="axisLeft">Levo</span>
+        <span id="axisRight">Desno</span>
+      </div>
+      <p class="hint" id="phaseHint">Osoba koja zadaje rec daje trag. Ostatak tima okrece kazaljku.</p>
+      <p class="bot-hint hidden" id="botHint" aria-live="polite"></p>
+      <div class="phase-badge" id="phaseBadge">Faza: Pogadjanje</div>
+    </section>
+
+    <section class="board-wrap">
+      <div class="dial-shell">
+        <svg id="dialSvg" viewBox="0 0 420 260" aria-label="Wavelength tabla">
+          <g id="baseArcs"></g>
+          <g id="secretBands" class="secret-bands"></g>
+          <line id="needleGrab" x1="210" y1="230" x2="210" y2="58" />
+          <line id="needle" x1="210" y1="230" x2="210" y2="60" />
+          <circle id="hub" cx="210" cy="230" r="16" />
+          <circle id="hubInner" cx="210" cy="230" r="6" />
+        </svg>
+
+        <div class="direction-zones" aria-label="Brzi pomak kazaljke">
+          <button class="zone" data-jump="left" type="button" aria-label="Skok kazaljke ulevo"></button>
+          <button class="zone" data-jump="center" type="button" aria-label="Skok kazaljke na sredinu"></button>
+          <button class="zone" data-jump="right" type="button" aria-label="Skok kazaljke udesno"></button>
+        </div>
+
+        <div id="secretOverlay" class="secret-overlay hidden" role="status" aria-live="polite">
+          <p id="secretOverlayText">Tajna zona je prikazana samo osobi koja zadaje rec.</p>
+        </div>
+      </div>
+
+      <div class="controls">
+        <p class="control-note" id="controlNote">Kazaljku pomeras direktno: povuci je misem ili prstom.</p>
+        <div class="btn-row">
+          <button id="peekBtn" class="btn btn-ghost">Prikazi tajnu osobi koja zadaje rec</button>
+          <button id="guessBtn" class="btn btn-accent">Pogodi</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="log-panel">
+      <h3 id="roundResultTitle">Rezultat runde</h3>
+      <p id="roundResult">Pomeri kazaljku i pritisni Pogodi za resenje i rezultat.</p>
+      <button id="nextRoundBtn" class="btn btn-primary" disabled>Sledeca runda</button>
+    </section>
+  </main>
+
+  <div id="teamNameModal" class="modal-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="teamModalTitle">
+    <div class="modal-card">
+      <h3 id="teamModalTitle">Promeni naziv tima</h3>
+      <input id="teamNameInput" class="modal-input" type="text" maxlength="24" autocomplete="off" />
+      <div class="modal-color-wrap">
+        <p id="teamColorLabel" class="modal-color-label">Boja tima</p>
+        <div id="teamColorOptions" class="color-options" role="radiogroup" aria-labelledby="teamColorLabel"></div>
+      </div>
+      <div class="modal-actions">
+        <button id="teamModalCancelBtn" class="btn btn-ghost" type="button">Otkazi</button>
+        <button id="teamModalSaveBtn" class="btn btn-primary" type="button">Sacuvaj</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

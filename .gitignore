@@ -1,0 +1,4 @@
+node_modules/
+.env
+systemprompt.txt
+wavelength-game-spec-summary.txt
