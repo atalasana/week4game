@@ -271,6 +271,10 @@ body[data-theme="light"] .start-rules-box {
   display: none;
 }
 
+.start-gate.hidden {
+  visibility: hidden;
+}
+
 .topbar,
 .scoreboard,
 .axis-card,
@@ -435,11 +439,21 @@ body[data-theme="light"] .icon-moon {
   align-items: center;
   justify-content: space-between;
   gap: 0.5rem;
+  min-width: 0;
+}
+
+.team-name-row > span:first-child {
+  min-width: 0;
+  flex: 1 1 auto;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .name-edit-btn {
   width: 28px;
   height: 28px;
+  flex: 0 0 auto;
   border-radius: 9px;
   border: 1px solid var(--name-btn-border);
   background: var(--name-btn-bg);
@@ -892,17 +906,32 @@ body[data-theme="light"] .dial-rail.inner {
 .modal-backdrop {
   position: fixed;
   inset: 0;
-  z-index: 120;
-  display: grid;
-  place-items: center;
-  padding: 1rem;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: max(1rem, env(safe-area-inset-top, 0px)) 1rem max(1rem, env(safe-area-inset-bottom, 0px));
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   background: var(--modal-backdrop);
   backdrop-filter: blur(3px);
   transition: opacity 160ms ease;
 }
 
+@supports (align-items: safe center) {
+  .modal-backdrop {
+    align-items: safe center;
+  }
+}
+
 .modal-card {
   width: min(92vw, 430px);
+  max-width: 100%;
+  max-height: min(90vh, 720px);
+  max-height: min(90dvh, 720px);
+  overflow: hidden auto;
+  flex-shrink: 0;
   border-radius: 10px;
   border: 1px solid var(--line);
   background: linear-gradient(175deg, var(--surface-top), var(--surface-bottom));
@@ -951,8 +980,9 @@ body[data-theme="light"] .dial-rail.inner {
 
 .color-options {
   display: grid;
-  grid-template-columns: repeat(5, minmax(36px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(2.25rem, 1fr));
   gap: 0.5rem;
+  max-width: 100%;
 }
 
 .color-chip {

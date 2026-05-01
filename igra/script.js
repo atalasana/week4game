@@ -372,6 +372,7 @@ const UI_TEXT = {
     hintErrorConfigMissing: "API adresa nije podešena (HINT_API_BASE u .env ili na hostingu).",
     hintErrorNeedServer: "Otvori stranicu preko servera (npr. npm start), ne kao lokalni fajl (file://).",
     hintErrorEmptyResponse: "Prazan odgovor od modela.",
+    hintErrorRateLimit: "429 — prekoracen limit zahteva ka API-ju.",
     phaseGuessHint: "Osoba koja zadaje rec daje trag. Ostatak tima okrece kazaljku.",
     phaseRevealedHint: "Zona je otkrivena. Poeni su obracunati za ovu rundu.",
     perfectShot: "Savrsen pogodak!",
@@ -426,6 +427,7 @@ const UI_TEXT = {
     hintErrorConfigMissing: "API base URL is not set (HINT_API_BASE in .env or hosting env).",
     hintErrorNeedServer: "Open the site via the server (e.g. npm start), not as a local file (file://).",
     hintErrorEmptyResponse: "Empty response from the model.",
+    hintErrorRateLimit: "429 — API rate limit exceeded.",
     phaseGuessHint: "The clue giver gives a hint. The rest of the team moves the needle.",
     phaseRevealedHint: "Zone revealed. Points were calculated for this round.",
     perfectShot: "Perfect hit!",
@@ -756,7 +758,8 @@ function buildHintChatMessages(axisLeft, axisRight, positionPct, language) {
     `- Numbers, percentages, ordinals, or words "left", "right", "center", "middle", "halfway" (and Serbian equivalents).`,
     `- Conjunctions that glue two unrelated ideas ("and", "but" / "i", "ali"). One image only.`,
     ``,
-    `Think silently, then output ONLY the clue words.`
+    `Never write explanations, planning, contradictions, or sentences about the task.`,
+    `Output must be ONLY the clue words — zero other characters before or after.`
   ].join("\n");
 
   const user = [
@@ -774,8 +777,129 @@ function buildHintChatMessages(axisLeft, axisRight, positionPct, language) {
 
 function hintMaxTokensForModel(modelId) {
   const id = String(modelId || "").toLowerCase();
-  if (id.includes("r1") || id.includes("reasoner")) return 1024;
+  if (id.includes("r1") || id.includes("reasoner")) return 400;
   return 48;
+}
+
+function stripThinkingWrappersFromModelText(text) {
+  let s = String(text || "").trim();
+  if (!s) return "";
+  const closeThink = ["<", "/", "think", ">"].join("");
+  const idxThink = s.lastIndexOf(closeThink);
+  if (idxThink !== -1) {
+    s = s.slice(idxThink + closeThink.length).trim();
+  }
+  const closeRedacted = ["<", "/", "redacted_thinking", ">"].join("");
+  const idxRed = s.lastIndexOf(closeRedacted);
+  if (idxRed !== -1) {
+    s = s.slice(idxRed + closeRedacted.length).trim();
+  }
+  return s;
+}
+
+function lineLooksLikeInternalMonologue(line) {
+  const t = String(line || "").trim();
+  if (!t) return true;
+  const lower = t.toLowerCase();
+  if (t.length > 90) return true;
+  const wordCount = t.split(/\s+/).filter(Boolean).length;
+  if (wordCount > 10) return true;
+  if (/^(okay|ok[, ]|alright|so[, ]|well[, ]|hmm+|umm+|let'?s |let us |we need |i need |i'?ll |i will |first[, ]|wait[, ]|the target|the secret|here'?s |note:?|answer:?)/i.test(t)) {
+    return true;
+  }
+  if (
+    /\b(which is very|i think |we should |in order to |that means |tackle this|left pole|right pole)\b/i.test(
+      lower
+    )
+  ) {
+    return true;
+  }
+  if (/\b(the|a) (left|right) (pole|side)\b/i.test(lower)) return true;
+  return false;
+}
+
+function hintCandidateChunksFromBody(body) {
+  const raw = String(body || "")
+    .replace(/\r/g, "")
+    .trim();
+  if (!raw) return [];
+  let chunks = raw
+    .split(/\n+/)
+    .map((c) => c.trim())
+    .filter(Boolean);
+  if (chunks.length === 1 && chunks[0].length > 110) {
+    const bySentence = chunks[0]
+      .split(/\.\s+/)
+      .map((c) => c.trim())
+      .filter(Boolean)
+      .map((c) => (/[.!?]$/.test(c) ? c : `${c}.`));
+    if (bySentence.length > 1) chunks = bySentence;
+  }
+  return chunks;
+}
+
+function lastNonMonologueWordTail(text, maxWords) {
+  const words = String(text || "")
+    .trim()
+    .split(/\s+/)
+    .filter(Boolean);
+  if (!words.length) return "";
+  const badSingle = new Set([
+    "that",
+    "this",
+    "it",
+    "a",
+    "an",
+    "the",
+    "is",
+    "at",
+    "to",
+    "or",
+    "so",
+    "if",
+    "of",
+    "on",
+    "in",
+    "as",
+    "be",
+    "and",
+    "but"
+  ]);
+  const hi = Math.min(maxWords, words.length);
+  for (let n = hi; n >= 1; n -= 1) {
+    const tail = words.slice(-n).join(" ");
+    if (n === 1 && badSingle.has(tail.toLowerCase())) continue;
+    if (lineLooksLikeInternalMonologue(tail)) continue;
+    if (tail.split(/\s+/).filter(Boolean).length > 12) continue;
+    if (/\b(i need|we need|let's |going to |tackle this)\b/i.test(tail)) continue;
+    if (/\b(that|which|what)\s*$/i.test(tail)) continue;
+    return tail;
+  }
+  return "";
+}
+
+function pickShortClueLineFromBody(body) {
+  const lines = hintCandidateChunksFromBody(body);
+
+  for (let i = lines.length - 1; i >= 0; i -= 1) {
+    let line = lines[i];
+    line = line.replace(/^[\s*—\-–]+/, "");
+    line = line.replace(/^(clue|hint|trag|odgovor|answer)\s*:\s*/i, "").trim();
+    line = line.replace(/^["'„«»]+|["'„«»]+$/g, "").trim();
+    if (!line) continue;
+    const wc = line.split(/\s+/).filter(Boolean).length;
+    if (wc < 1 || wc > 12) continue;
+    if (lineLooksLikeInternalMonologue(line)) continue;
+    return line.slice(0, 96);
+  }
+
+  const flat = lines.join(" ").trim();
+  if (flat.length > 48) {
+    const tail = lastNonMonologueWordTail(flat, 6);
+    if (tail) return tail.slice(0, 96);
+  }
+
+  return "";
 }
 
 function extractHintFromChatCompletion(data) {
@@ -784,27 +908,12 @@ function extractHintFromChatCompletion(data) {
   const msg = data.choices?.[0]?.message;
   if (!msg || typeof msg !== "object") return "";
 
-  let raw = typeof msg.content === "string" ? msg.content.trim() : "";
-  if (!raw && typeof msg.reasoning_content === "string") {
-    const reasoning = msg.reasoning_content.trim();
-    const lines = reasoning
-      .split(/\r?\n/)
-      .map((l) => l.trim())
-      .filter(Boolean);
-    for (let i = lines.length - 1; i >= 0; i -= 1) {
-      const line = lines[i];
-      if (line.length >= 2 && line.length <= 120 && line.split(/\s+/).length <= 8) {
-        raw = line;
-        break;
-      }
-    }
-    if (!raw) raw = reasoning.slice(0, 240);
-  }
-  if (typeof raw !== "string") return "";
-  let s = raw.trim();
-  s = s.replace(/^["'„«»]+|["'„«»]+$/g, "").trim();
-  const firstLine = s.split(/\r?\n/)[0].trim();
-  return firstLine.slice(0, 240);
+  const content = typeof msg.content === "string" ? msg.content.trim() : "";
+  const visible = stripThinkingWrappersFromModelText(content);
+  const guess = pickShortClueLineFromBody(visible || content);
+  if (guess) return guess;
+
+  return "";
 }
 
 async function fetchSinglePlayerHint() {
@@ -855,10 +964,14 @@ async function fetchSinglePlayerHint() {
 
     if (!response.ok) {
       if (requestId !== state.hintRequestId || state.gameMode !== 1) return;
-      const detail =
-        extractApiErrorDetail(data) || response.statusText || String(response.status);
       state.botHintHadError = true;
-      state.botHint = formatBotHintError(t, detail, response.status);
+      if (response.status === 429) {
+        state.botHint = t.hintErrorRateLimit;
+      } else {
+        const detail =
+          extractApiErrorDetail(data) || response.statusText || String(response.status);
+        state.botHint = formatBotHintError(t, detail, response.status);
+      }
       updateBotHintView();
       return;
     }
@@ -879,7 +992,7 @@ async function fetchSinglePlayerHint() {
 
     if (requestId !== state.hintRequestId || state.gameMode !== 1) return;
     state.botHintHadError = false;
-    state.botHint = `${t.botHintPrefix} ${hint}`;
+    state.botHint = hint;
   } catch (err) {
     if (requestId !== state.hintRequestId || state.gameMode !== 1) return;
     state.botHintHadError = true;
