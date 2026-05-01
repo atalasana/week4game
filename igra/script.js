@@ -902,15 +902,38 @@ function pickShortClueLineFromBody(body) {
   return "";
 }
 
+/** OpenAI-compatible APIs may use a string or an array of { type, text } parts. */
+function messageContentToPlainString(content) {
+  if (content == null) return "";
+  if (typeof content === "string") return content.trim();
+  if (Array.isArray(content)) {
+    const parts = [];
+    for (const part of content) {
+      if (typeof part === "string") parts.push(part);
+      else if (part && typeof part === "object" && typeof part.text === "string") {
+        parts.push(part.text);
+      }
+    }
+    return parts.join("\n").trim();
+  }
+  return "";
+}
+
 function extractHintFromChatCompletion(data) {
   if (!data || typeof data !== "object") return "";
   if (data.error && typeof data.error.message === "string") return "";
   const msg = data.choices?.[0]?.message;
   if (!msg || typeof msg !== "object") return "";
 
-  const content = typeof msg.content === "string" ? msg.content.trim() : "";
-  const visible = stripThinkingWrappersFromModelText(content);
-  const guess = pickShortClueLineFromBody(visible || content);
+  let raw = messageContentToPlainString(msg.content);
+  if (!raw && typeof msg.reasoning_content === "string") {
+    raw = msg.reasoning_content.trim();
+  }
+  if (!raw && typeof data.choices?.[0]?.text === "string") {
+    raw = data.choices[0].text.trim();
+  }
+  const visible = stripThinkingWrappersFromModelText(raw);
+  const guess = pickShortClueLineFromBody(visible || raw);
   if (guess) return guess;
 
   return "";
