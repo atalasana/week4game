@@ -740,40 +740,31 @@ function hintPositionPercentFromAngle(angleDeg) {
 
 function buildHintChatMessages(axisLeft, axisRight, positionPct, language) {
   const langLabel = language === "en" ? "English" : "Serbian";
+  
   const system = [
-    `You are the clue giver ("psychic") in the party game Wavelength.`,
-    `The team only sees the two opposite poles of a spectrum. You know a secret target position from 0 (fully left pole) to 100 (fully right pole).`,
+    `You are an expert player in the party game Wavelength.`,
+    `Your task: give exactly ONE perfect clue that aligns with a secret target percentage on a spectrum.`,
+    `The spectrum goes from 0% (Extremely "${axisLeft}") to 100% (Extremely "${axisRight}").`,
     ``,
-    `OUTPUT: exactly ONE clue in ${langLabel}, 1–3 words only. No punctuation except what is inside a proper name. No quotes. No labels like "Clue:". Single line.`,
+    `RULES FOR THE CLUE:`,
+    `- MUST be a specific, concrete noun: a famous person, historical event, brand, pop culture reference, or highly specific everyday object/scenario.`,
+    `- NO abstract concepts, NO numbers, NO descriptions of the process.`,
+    `- DO NOT use synonyms of the pole words or the words themselves.`,
+    `- Maximum 1 to 4 words.`,
+    `- If the target is near 0% or 100%, provide an extreme example. If it's near 50%, provide an example that perfectly balances both concepts.`,
     ``,
-    `CLUE QUALITY (critical):`,
-    `- Must be ONE concrete anchor: a real or well-known person, brand, object, place, movie/book title, event, or clear trope — something players can argue about WHERE it sits on the spectrum.`,
-    `- Do NOT output vague hedges or probability fluff (e.g. English: "maybe", "somehow", "probably", "sort of"; Serbian: "nekako", "možda", "verovatno", "valjda", "dosta", "prilike", "uglavnom").`,
-    `- Do NOT output generic filler sentences or abstract process phrases (bad Serbian example to NEVER imitate: "Nekako će se desiti").`,
-    `- If the poles are about likelihood / certainty / confidence, do not use extra probability adverbs — encode the position with a concrete situation or thing whose frequency or strength players understand.`,
-    `- Match strength to target: near 0 → strongly aligned with the LEFT pole concept; near 100 → strongly with the RIGHT; mid → a balanced or famously "in-between" example.`,
-    ``,
-    `FORBIDDEN in the clue:`,
-    `- The exact left/right pole strings you were given, their inflections, obvious synonyms, or shared roots.`,
-    `- Numbers, percentages, ordinals, or words "left", "right", "center", "middle", "halfway" (and Serbian equivalents).`,
-    `- Conjunctions that glue two unrelated ideas ("and", "but" / "i", "ali"). One image only.`,
-    ``,
-    `Never write explanations, planning, contradictions, or sentences about the task.`,
-    `Output must be ONLY the clue words — zero other characters before or after.`
+    `Output language: ${langLabel}`,
+    `CRITICAL: Output ONLY the clue text. No intro, no quotes, no punctuation at the end.`
   ].join("\n");
 
-  const user = [
-    `LEFT pole (0%): "${axisLeft}"`,
-    `RIGHT pole (100%): "${axisRight}"`,
-    `Secret target: ${positionPct} (0=left pole, 100=right pole).`,
-    `Write the clue in ${langLabel} now.`
-  ].join("\n");
+  const user = `Target: ${positionPct}%\nSpectrum: "${axisLeft}" to "${axisRight}"\nGive me the clue.`;
 
   return [
     { role: "system", content: system },
     { role: "user", content: user }
   ];
 }
+
 
 function hintMaxTokensForModel(modelId) {
   const id = String(modelId || "").toLowerCase();
