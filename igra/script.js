@@ -742,13 +742,11 @@ function buildHintChatMessages(axisLeft, axisRight, positionPct, language) {
     `You are the clue giver ("psychic") in the party game Wavelength.`,
     `The team only sees the two opposite poles of a spectrum. You know a secret target position from 0 (fully left pole) to 100 (fully right pole).`,
     ``,
-    `OUTPUT: exactly ONE clue in ${langLabel}, 1–3 words only. No punctuation except what is inside a proper name. No quotes. No labels like "Clue:". Single line.`,
+    `OUTPUT: exactly ONE concept/clue in ${langLabel}. It can be a single word or a short descriptive phrase, but it must represent ONE concrete idea. No quotes. No labels like "Clue:". Single line.`,
     ``,
     `CLUE QUALITY (critical):`,
     `- Must be ONE concrete anchor: a real or well-known person, brand, object, place, movie/book title, event, or clear trope — something players can argue about WHERE it sits on the spectrum.`,
     `- Do NOT output vague hedges or probability fluff (e.g. English: "maybe", "somehow", "probably", "sort of"; Serbian: "nekako", "možda", "verovatno", "valjda", "dosta", "prilike", "uglavnom").`,
-    `- Do NOT output generic filler sentences or abstract process phrases (bad Serbian example to NEVER imitate: "Nekako će se desiti").`,
-    `- If the poles are about likelihood / certainty / confidence, do not use extra probability adverbs — encode the position with a concrete situation or thing whose frequency or strength players understand.`,
     `- Match strength to target: near 0 → strongly aligned with the LEFT pole concept; near 100 → strongly with the RIGHT; mid → a balanced or famously "in-between" example.`,
     ``,
     `FORBIDDEN in the clue:`,
@@ -756,14 +754,14 @@ function buildHintChatMessages(axisLeft, axisRight, positionPct, language) {
     `- Numbers, percentages, ordinals, or words "left", "right", "center", "middle", "halfway" (and Serbian equivalents).`,
     `- Conjunctions that glue two unrelated ideas ("and", "but" / "i", "ali"). One image only.`,
     ``,
-    `Think silently, then output ONLY the clue words.`
+    `If your model uses <think> tags for reasoning, use them. After thinking, output ONLY the final clue.`
   ].join("\n");
 
   const user = [
     `LEFT pole (0%): "${axisLeft}"`,
     `RIGHT pole (100%): "${axisRight}"`,
     `Secret target: ${positionPct} (0=left pole, 100=right pole).`,
-    `Write the clue in ${langLabel} now.`
+    `Write the final clue in ${langLabel} now.`
   ].join("\n");
 
   return [
@@ -784,26 +782,37 @@ function extractHintFromChatCompletion(data) {
   const msg = data.choices?.[0]?.message;
   if (!msg || typeof msg !== "object") return "";
 
-  let raw = typeof msg.content === "string" ? msg.content.trim() : "";
+  let raw = typeof msg.content === "string" ? msg.content : "";
+
+  // 1. Brisanje `<think>...</think>` blokova ukoliko ih model vrati u content polju
+  raw = raw.replace(/<think>[\s\S]*?<\/think>/gi, '').trim();
+
+  // 2. Opcioni fallback ukoliko je provajder odvojio reasoning, a nismo dobili raw (retko, ali bezbedno)
   if (!raw && typeof msg.reasoning_content === "string") {
     const reasoning = msg.reasoning_content.trim();
-    const lines = reasoning
-      .split(/\r?\n/)
-      .map((l) => l.trim())
-      .filter(Boolean);
+    const lines = reasoning.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
     for (let i = lines.length - 1; i >= 0; i -= 1) {
-      const line = lines[i];
-      if (line.length >= 2 && line.length <= 120 && line.split(/\s+/).length <= 8) {
-        raw = line;
+      if (lines[i].length >= 2 && lines[i].length <= 120) {
+        raw = lines[i];
         break;
       }
     }
-    if (!raw) raw = reasoning.slice(0, 240);
   }
-  if (typeof raw !== "string") return "";
+
+  if (typeof raw !== "string" || !raw) return "";
+
   let s = raw.trim();
+
+  // 3. Brisanje prefiksa ako model ipak odluci da napise "Clue:" ili "Odgovor:"
+  s = s.replace(/^(Clue|Hint|Trag|Odgovor):\s*/i, "");
+
+  // 4. Ciscenje navodnika
   s = s.replace(/^["'„«»]+|["'„«»]+$/g, "").trim();
-  const firstLine = s.split(/\r?\n/)[0].trim();
+
+  // 5. Uzimanje prve validne linije (da iskljucimo dodatna pojasnjenja ispod)
+  const cleanLines = s.split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+  const firstLine = cleanLines.length > 0 ? cleanLines[0] : "";
+
   return firstLine.slice(0, 240);
 }
 
